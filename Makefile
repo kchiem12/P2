@@ -1,4 +1,4 @@
-PLATFORM=mac
+PLATFORM=linux
 include Makefile.in.$(PLATFORM)
 
 .PHONY: all exe doc clean realclean
