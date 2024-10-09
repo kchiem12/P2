@@ -1,6 +1,6 @@
 #include <string.h>
 
-#include "zmorton.hpp"
+#include "zmorton.hpp" 
 #include "binhash.hpp"
 
 /*@q
