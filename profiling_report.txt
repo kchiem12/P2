@@ -1,0 +1,343 @@
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls  ms/call  ms/call  name    
+ 42.47     29.98    29.98 3226037010     0.00     0.00  zm_part1by2(unsigned int)
+  9.59     36.74     6.77    39901     0.17     1.74  compute_accel(sim_state_t*, sim_param_t*)
+  7.75     42.22     5.47 1075345670     0.00     0.00  zm_encode(unsigned int, unsigned int, unsigned int)
+  7.62     47.59     5.38    39902     0.13     0.78  compute_density(sim_state_t*, sim_param_t*)
+  7.57     52.94     5.34 339108299     0.00     0.00  update_forces(particle_t*, particle_t*, float, float, float, float, float)
+  6.41     57.46     4.53 339119304     0.00     0.00  update_density(particle_t*, particle_t*, float, float)
+  3.60     60.00     2.54 339119304     0.00     0.00  vec3_dist2(float*, float*)
+  3.53     62.49     2.49 350929351     0.00     0.00  vec3_saxpy(float*, float, float*)
+  3.36     64.86     2.38 39103470     0.00     0.00  particle_neighborhood(unsigned int*, particle_t*, float)
+  3.24     67.15     2.29 411004699     0.00     0.00  vec3_diff(float*, float*, float*)
+  3.22     69.42     2.27 339108299     0.00     0.00  vec3_len2(float*)
+  0.27     69.61     0.19    39901     0.00     0.01  reflect_bc(sim_state_t*)
+  0.26     69.80     0.18 19551980     0.00     0.00  particle_bucket(particle_t*, float)
+  0.25     69.97     0.17    39900     0.00     0.03  leapfrog_step(sim_state_t*, double)
+  0.21     70.12     0.15 39103960     0.00     0.00  vec3_set(float*, float, float, float)
+  0.17     70.24     0.12    39902     0.00     0.02  hash_particles(sim_state_t*, float)
+  0.13     70.33     0.10 19551490     0.00     0.00  vec3_copy(float*, float*)
+  0.13     70.43     0.10  9378562     0.00     0.00  vec3_scalev(float*, float)
+  0.10     70.50     0.07  4689281     0.00     0.00  damp_reflect(int, float, float*, float*, float*)
+  0.07     70.55     0.05 71896400     0.00     0.00  std::sqrt(float)
+  0.04     70.58     0.03    39901     0.00     0.00  check_state(sim_state_t*)
+  0.00     70.58     0.00     4394     0.00     0.00  box_indicator(float, float, float)
+  0.00     70.58     0.00      400     0.00     0.00  write_frame_data(_IO_FILE*, int, sim_state_t*, int*)
+  0.00     70.58     0.00        1     0.00     0.00  free_state(sim_state_t*)
+  0.00     70.58     0.00        1     0.00     0.00  get_params(int, char**, sim_param_t*)
+  0.00     70.58     0.00        1     0.00     0.00  alloc_state(int)
+  0.00     70.58     0.00        1     0.00     0.00  write_header(_IO_FILE*, int, int, float)
+  0.00     70.58     0.00        1     0.00     0.81  init_particles(sim_param_t*)
+  0.00     70.58     0.00        1     0.00     0.02  leapfrog_start(sim_state_t*, double)
+  0.00     70.58     0.00        1     0.00     0.80  normalize_mass(sim_state_t*, sim_param_t*)
+  0.00     70.58     0.00        1     0.00     0.00  place_particles(sim_param_t*, int (*)(float, float, float))
+  0.00     70.58     0.00        1     0.00     0.00  default_params(sim_param_t*)
+  0.00     70.58     0.00        1     0.00     0.00  sim_param_t::sim_param_t()
+  0.00     70.58     0.00        1     0.00     0.00  sim_param_t::~sim_param_t()
+
+ %         the percentage of the total running time of the
+time       program used by this function.
+
+cumulative a running sum of the number of seconds accounted
+ seconds   for by this function and those listed above it.
+
+ self      the number of seconds accounted for by this
+seconds    function alone.  This is the major sort for this
+           listing.
+
+calls      the number of times this function was invoked, if
+           this function is profiled, else blank.
+
+ self      the average number of milliseconds spent in this
+ms/call    function per call, if this function is profiled,
+	   else blank.
+
+ total     the average number of milliseconds spent in this
+ms/call    function and its descendents per call, if this
+	   function is profiled, else blank.
+
+name       the name of the function.  This is the minor sort
+           for this listing. The index shows the location of
+	   the function in the gprof listing. If the index is
+	   in parenthesis it shows where it would appear in
+	   the gprof listing if it were to be printed.
+
+Copyright (C) 2012-2023 Free Software Foundation, Inc.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+
+		     Call graph (explanation follows)
+
+
+granularity: each sample hit covers 4 byte(s) for 0.01% of 70.58 seconds
+
+index % time    self  children    called     name
+                                                 <spontaneous>
+[1]    100.0    0.00   70.58                 main [1]
+                6.77   62.63   39901/39901       compute_accel(sim_state_t*, sim_param_t*) [2]
+                0.17    0.97   39900/39900       leapfrog_step(sim_state_t*, double) [13]
+                0.03    0.00   39901/39901       check_state(sim_state_t*) [22]
+                0.00    0.00       1/1           init_particles(sim_param_t*) [23]
+                0.00    0.00       1/1           leapfrog_start(sim_state_t*, double) [25]
+                0.00    0.00     400/400         write_frame_data(_IO_FILE*, int, sim_state_t*, int*) [34]
+                0.00    0.00       1/1           sim_param_t::sim_param_t() [40]
+                0.00    0.00       1/1           get_params(int, char**, sim_param_t*) [36]
+                0.00    0.00       1/1           write_header(_IO_FILE*, int, int, float) [38]
+                0.00    0.00       1/1           free_state(sim_state_t*) [35]
+                0.00    0.00       1/1           sim_param_t::~sim_param_t() [41]
+-----------------------------------------------
+                6.77   62.63   39901/39901       main [1]
+[2]     98.3    6.77   62.63   39901         compute_accel(sim_state_t*, sim_param_t*) [2]
+                5.37   25.65   39901/39902       compute_density(sim_state_t*, sim_param_t*) [5]
+                1.19   17.40 19551490/39103470     particle_neighborhood(unsigned int*, particle_t*, float) [3]
+                5.34    6.65 339108299/339108299     update_forces(particle_t*, particle_t*, float, float, float, float, float) [7]
+                0.12    0.83   39901/39902       hash_particles(sim_state_t*, float) [14]
+                0.07    0.00 19551490/39103960     vec3_set(float*, float, float, float) [19]
+-----------------------------------------------
+                1.19   17.40 19551490/39103470     compute_accel(sim_state_t*, sim_param_t*) [2]
+                1.19   17.40 19551980/39103470     compute_density(sim_state_t*, sim_param_t*) [5]
+[3]     52.7    2.38   34.80 39103470         particle_neighborhood(unsigned int*, particle_t*, float) [3]
+                5.37   29.43 1055793690/1075345670     zm_encode(unsigned int, unsigned int, unsigned int) [4]
+-----------------------------------------------
+                0.10    0.55 19551980/1075345670     particle_bucket(particle_t*, float) [15]
+                5.37   29.43 1055793690/1075345670     particle_neighborhood(unsigned int*, particle_t*, float) [3]
+[4]     50.2    5.47   29.98 1075345670         zm_encode(unsigned int, unsigned int, unsigned int) [4]
+               29.98    0.00 3226037010/3226037010     zm_part1by2(unsigned int) [6]
+-----------------------------------------------
+                0.00    0.00       1/39902       normalize_mass(sim_state_t*, sim_param_t*) [24]
+                5.37   25.65   39901/39902       compute_accel(sim_state_t*, sim_param_t*) [2]
+[5]     44.0    5.38   25.65   39902         compute_density(sim_state_t*, sim_param_t*) [5]
+                1.19   17.40 19551980/39103470     particle_neighborhood(unsigned int*, particle_t*, float) [3]
+                4.53    2.54 339119304/339119304     update_density(particle_t*, particle_t*, float, float) [8]
+-----------------------------------------------
+               29.98    0.00 3226037010/3226037010     zm_encode(unsigned int, unsigned int, unsigned int) [4]
+[6]     42.5   29.98    0.00 3226037010         zm_part1by2(unsigned int) [6]
+-----------------------------------------------
+                5.34    6.65 339108299/339108299     compute_accel(sim_state_t*, sim_param_t*) [2]
+[7]     17.0    5.34    6.65 339108299         update_forces(particle_t*, particle_t*, float, float, float, float, float) [7]
+                2.29    0.00 411004699/411004699     vec3_diff(float*, float*, float*) [11]
+                2.27    0.00 339108299/339108299     vec3_len2(float*) [12]
+                2.04    0.00 287585600/350929351     vec3_saxpy(float*, float, float*) [10]
+                0.05    0.00 71896400/71896400     std::sqrt(float) [21]
+-----------------------------------------------
+                4.53    2.54 339119304/339119304     compute_density(sim_state_t*, sim_param_t*) [5]
+[8]     10.0    4.53    2.54 339119304         update_density(particle_t*, particle_t*, float, float) [8]
+                2.54    0.00 339119304/339119304     vec3_dist2(float*, float*) [9]
+-----------------------------------------------
+                2.54    0.00 339119304/339119304     update_density(particle_t*, particle_t*, float, float) [8]
+[9]      3.6    2.54    0.00 339119304         vec3_dist2(float*, float*) [9]
+-----------------------------------------------
+                0.00    0.00    1470/350929351     leapfrog_start(sim_state_t*, double) [25]
+                0.03    0.00 4689281/350929351     damp_reflect(int, float, float*, float*, float*) [17]
+                0.42    0.00 58653000/350929351     leapfrog_step(sim_state_t*, double) [13]
+                2.04    0.00 287585600/350929351     update_forces(particle_t*, particle_t*, float, float, float, float, float) [7]
+[10]     3.5    2.49    0.00 350929351         vec3_saxpy(float*, float, float*) [10]
+-----------------------------------------------
+                2.29    0.00 411004699/411004699     update_forces(particle_t*, particle_t*, float, float, float, float, float) [7]
+[11]     3.2    2.29    0.00 411004699         vec3_diff(float*, float*, float*) [11]
+-----------------------------------------------
+                2.27    0.00 339108299/339108299     update_forces(particle_t*, particle_t*, float, float, float, float, float) [7]
+[12]     3.2    2.27    0.00 339108299         vec3_len2(float*) [12]
+-----------------------------------------------
+                0.17    0.97   39900/39900       main [1]
+[13]     1.6    0.17    0.97   39900         leapfrog_step(sim_state_t*, double) [13]
+                0.42    0.00 58653000/350929351     vec3_saxpy(float*, float, float*) [10]
+                0.19    0.20   39900/39901       reflect_bc(sim_state_t*) [16]
+                0.09    0.07 19551000/19551490     vec3_copy(float*, float*) [18]
+-----------------------------------------------
+                0.00    0.00       1/39902       normalize_mass(sim_state_t*, sim_param_t*) [24]
+                0.12    0.83   39901/39902       compute_accel(sim_state_t*, sim_param_t*) [2]
+[14]     1.3    0.12    0.83   39902         hash_particles(sim_state_t*, float) [14]
+                0.18    0.64 19551980/19551980     particle_bucket(particle_t*, float) [15]
+-----------------------------------------------
+                0.18    0.64 19551980/19551980     hash_particles(sim_state_t*, float) [14]
+[15]     1.2    0.18    0.64 19551980         particle_bucket(particle_t*, float) [15]
+                0.10    0.55 19551980/1075345670     zm_encode(unsigned int, unsigned int, unsigned int) [4]
+-----------------------------------------------
+                0.00    0.00       1/39901       leapfrog_start(sim_state_t*, double) [25]
+                0.19    0.20   39900/39901       leapfrog_step(sim_state_t*, double) [13]
+[16]     0.6    0.19    0.20   39901         reflect_bc(sim_state_t*) [16]
+                0.07    0.13 4689281/4689281     damp_reflect(int, float, float*, float*, float*) [17]
+-----------------------------------------------
+                0.07    0.13 4689281/4689281     reflect_bc(sim_state_t*) [16]
+[17]     0.3    0.07    0.13 4689281         damp_reflect(int, float, float*, float*, float*) [17]
+                0.10    0.00 9378562/9378562     vec3_scalev(float*, float) [20]
+                0.03    0.00 4689281/350929351     vec3_saxpy(float*, float, float*) [10]
+-----------------------------------------------
+                0.00    0.00     490/19551490     leapfrog_start(sim_state_t*, double) [25]
+                0.09    0.07 19551000/19551490     leapfrog_step(sim_state_t*, double) [13]
+[18]     0.2    0.10    0.07 19551490         vec3_copy(float*, float*) [18]
+                0.07    0.00 19551490/39103960     vec3_set(float*, float, float, float) [19]
+-----------------------------------------------
+                0.00    0.00     980/39103960     place_particles(sim_param_t*, int (*)(float, float, float)) [26]
+                0.07    0.00 19551490/39103960     compute_accel(sim_state_t*, sim_param_t*) [2]
+                0.07    0.00 19551490/39103960     vec3_copy(float*, float*) [18]
+[19]     0.2    0.15    0.00 39103960         vec3_set(float*, float, float, float) [19]
+-----------------------------------------------
+                0.10    0.00 9378562/9378562     damp_reflect(int, float, float*, float*, float*) [17]
+[20]     0.1    0.10    0.00 9378562         vec3_scalev(float*, float) [20]
+-----------------------------------------------
+                0.05    0.00 71896400/71896400     update_forces(particle_t*, particle_t*, float, float, float, float, float) [7]
+[21]     0.1    0.05    0.00 71896400         std::sqrt(float) [21]
+-----------------------------------------------
+                0.03    0.00   39901/39901       main [1]
+[22]     0.0    0.03    0.00   39901         check_state(sim_state_t*) [22]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[23]     0.0    0.00    0.00       1         init_particles(sim_param_t*) [23]
+                0.00    0.00       1/1           normalize_mass(sim_state_t*, sim_param_t*) [24]
+                0.00    0.00       1/1           place_particles(sim_param_t*, int (*)(float, float, float)) [26]
+-----------------------------------------------
+                0.00    0.00       1/1           init_particles(sim_param_t*) [23]
+[24]     0.0    0.00    0.00       1         normalize_mass(sim_state_t*, sim_param_t*) [24]
+                0.00    0.00       1/39902       compute_density(sim_state_t*, sim_param_t*) [5]
+                0.00    0.00       1/39902       hash_particles(sim_state_t*, float) [14]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[25]     0.0    0.00    0.00       1         leapfrog_start(sim_state_t*, double) [25]
+                0.00    0.00    1470/350929351     vec3_saxpy(float*, float, float*) [10]
+                0.00    0.00       1/39901       reflect_bc(sim_state_t*) [16]
+                0.00    0.00     490/19551490     vec3_copy(float*, float*) [18]
+-----------------------------------------------
+                0.00    0.00       1/1           init_particles(sim_param_t*) [23]
+[26]     0.0    0.00    0.00       1         place_particles(sim_param_t*, int (*)(float, float, float)) [26]
+                0.00    0.00     980/39103960     vec3_set(float*, float, float, float) [19]
+                0.00    0.00    4394/4394        box_indicator(float, float, float) [33]
+                0.00    0.00       1/1           alloc_state(int) [37]
+-----------------------------------------------
+                0.00    0.00    4394/4394        place_particles(sim_param_t*, int (*)(float, float, float)) [26]
+[33]     0.0    0.00    0.00    4394         box_indicator(float, float, float) [33]
+-----------------------------------------------
+                0.00    0.00     400/400         main [1]
+[34]     0.0    0.00    0.00     400         write_frame_data(_IO_FILE*, int, sim_state_t*, int*) [34]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[35]     0.0    0.00    0.00       1         free_state(sim_state_t*) [35]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[36]     0.0    0.00    0.00       1         get_params(int, char**, sim_param_t*) [36]
+                0.00    0.00       1/1           default_params(sim_param_t*) [39]
+-----------------------------------------------
+                0.00    0.00       1/1           place_particles(sim_param_t*, int (*)(float, float, float)) [26]
+[37]     0.0    0.00    0.00       1         alloc_state(int) [37]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[38]     0.0    0.00    0.00       1         write_header(_IO_FILE*, int, int, float) [38]
+-----------------------------------------------
+                0.00    0.00       1/1           get_params(int, char**, sim_param_t*) [36]
+[39]     0.0    0.00    0.00       1         default_params(sim_param_t*) [39]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[40]     0.0    0.00    0.00       1         sim_param_t::sim_param_t() [40]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[41]     0.0    0.00    0.00       1         sim_param_t::~sim_param_t() [41]
+-----------------------------------------------
+
+ This table describes the call tree of the program, and was sorted by
+ the total amount of time spent in each function and its children.
+
+ Each entry in this table consists of several lines.  The line with the
+ index number at the left hand margin lists the current function.
+ The lines above it list the functions that called this function,
+ and the lines below it list the functions this one called.
+ This line lists:
+     index	A unique number given to each element of the table.
+		Index numbers are sorted numerically.
+		The index number is printed next to every function name so
+		it is easier to look up where the function is in the table.
+
+     % time	This is the percentage of the `total' time that was spent
+		in this function and its children.  Note that due to
+		different viewpoints, functions excluded by options, etc,
+		these numbers will NOT add up to 100%.
+
+     self	This is the total amount of time spent in this function.
+
+     children	This is the total amount of time propagated into this
+		function by its children.
+
+     called	This is the number of times the function was called.
+		If the function called itself recursively, the number
+		only includes non-recursive calls, and is followed by
+		a `+' and the number of recursive calls.
+
+     name	The name of the current function.  The index number is
+		printed after it.  If the function is a member of a
+		cycle, the cycle number is printed between the
+		function's name and the index number.
+
+
+ For the function's parents, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the function into this parent.
+
+     children	This is the amount of time that was propagated from
+		the function's children into this parent.
+
+     called	This is the number of times this parent called the
+		function `/' the total number of times the function
+		was called.  Recursive calls to the function are not
+		included in the number after the `/'.
+
+     name	This is the name of the parent.  The parent's index
+		number is printed after it.  If the parent is a
+		member of a cycle, the cycle number is printed between
+		the name and the index number.
+
+ If the parents of the function cannot be determined, the word
+ `<spontaneous>' is printed in the `name' field, and all the other
+ fields are blank.
+
+ For the function's children, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the child into the function.
+
+     children	This is the amount of time that was propagated from the
+		child's children to the function.
+
+     called	This is the number of times the function called
+		this child `/' the total number of times the child
+		was called.  Recursive calls by the child are not
+		listed in the number after the `/'.
+
+     name	This is the name of the child.  The child's index
+		number is printed after it.  If the child is a
+		member of a cycle, the cycle number is printed
+		between the name and the index number.
+
+ If there are any cycles (circles) in the call graph, there is an
+ entry for the cycle-as-a-whole.  This entry shows who called the
+ cycle (as parents) and the members of the cycle (as children.)
+ The `+' recursive calls entry shows the number of function calls that
+ were internal to the cycle, and the calls entry for each member shows,
+ for that member, how many times it was called from other members of
+ the cycle.
+
+Copyright (C) 2012-2023 Free Software Foundation, Inc.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+
+Index by function name
+
+  [35] free_state(sim_state_t*) [7] update_forces(particle_t*, particle_t*, float, float, float, float, float) [18] vec3_copy(float*, float*)
+  [36] get_params(int, char**, sim_param_t*) [14] hash_particles(sim_state_t*, float) [11] vec3_diff(float*, float*, float*)
+   [9] vec3_dist2(float*, float*) [23] init_particles(sim_param_t*) [12] vec3_len2(float*)
+  [10] vec3_saxpy(float*, float, float*) [25] leapfrog_start(sim_state_t*, double) [4] zm_encode(unsigned int, unsigned int, unsigned int)
+  [37] alloc_state(int)       [24] normalize_mass(sim_state_t*, sim_param_t*) [16] reflect_bc(sim_state_t*) (leapfrog.cpp)
+  [22] check_state(sim_state_t*) [8] update_density(particle_t*, particle_t*, float, float) [17] damp_reflect(int, float, float*, float*, float*) (leapfrog.cpp)
+  [20] vec3_scalev(float*, float) [5] compute_density(sim_state_t*, sim_param_t*) [39] default_params(sim_param_t*) (params.cpp)
+   [6] zm_part1by2(unsigned int) [15] particle_bucket(particle_t*, float) [40] sim_param_t::sim_param_t()
+  [38] write_header(_IO_FILE*, int, int, float) [26] place_particles(sim_param_t*, int (*)(float, float, float)) [41] sim_param_t::~sim_param_t()
+  [33] box_indicator(float, float, float) [34] write_frame_data(_IO_FILE*, int, sim_state_t*, int*) [21] std::sqrt(float)
+   [2] compute_accel(sim_state_t*, sim_param_t*) [3] particle_neighborhood(unsigned int*, particle_t*, float)
+  [13] leapfrog_step(sim_state_t*, double) [19] vec3_set(float*, float, float, float)

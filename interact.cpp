@@ -73,7 +73,8 @@ void compute_density(sim_state_t* s, sim_param_t* params)
 
             // Loop through all particles in the bin
             while (pj != NULL) {
-                if (pj != pi) {
+                // avoid duplicate work on pairs
+                if (pj != pi && pi < pj) {
                     update_density(pi, pj, h2, C);
                 }
                 pj = pj->next; // Move to the next particle in the bin
@@ -183,7 +184,8 @@ void compute_accel(sim_state_t* state, sim_param_t* params)
 
             // Loop through all particles in the bin
             while (pj != NULL) {
-                if (pj != pi) {
+                // leverage symmetric property and avoid duplicate work on pairs
+                if (pj != pi && pi < pj) {
                     update_forces(pi, pj, h2, rho0, C0, Cp, Cv);
                 }
                 pj = pj->next; // Move to the next particle in the bin

@@ -175,5 +175,16 @@ int main(int argc, char** argv)
     printf("Ran in %g seconds\n", t_end-t_start);
 
     fclose(fp);
+
+    // Write the time and number of particles to a separate txt file
+    FILE* timing_fp = std::fopen("timing_output.txt", "a");  // Open the timing file in append mode
+    if (timing_fp != NULL) {
+        // Write the time and number of particles (appending to the file)
+        fprintf(timing_fp, " %d,%g\n", state->n, t_end-t_start);
+        fclose(timing_fp);  // close file after write
+    } else {
+        fprintf(stderr, "Error: Could not open timing output file.\n");
+    }
+
     free_state(state);
 }

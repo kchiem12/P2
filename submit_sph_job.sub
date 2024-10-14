@@ -16,4 +16,11 @@ export OMP_NUM_THREADS=8
 export OMP_PROC_BIND=spread
 export OMP_PLACES=threads
 make exe
-srun ./sph.x
+
+# various particle sizes, halved the size each time
+sizes=(0.5, 0.2, 0.15, 0.1, 0.09, 0.08. 0.07, 0.06, 0.05, 0.04, 0.03, 0.02, 0.01)
+
+for h in "${sizes[@]}"; do
+  echo "Run simulation with h=$h"
+  srun ./sph.x -s $h
+done
