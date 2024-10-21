@@ -64,39 +64,23 @@ void compute_density(sim_state_t* s, sim_param_t* params)
     #pragma omp parallel for
     for (int i = 0; i < n; ++i) {
         particle_t* pi = s->part + i;
-        
-        // Initialize the base density for the current particle
-        pi->rho += (315.0 / 64.0 / M_PI) * s->mass / h3;
+        pi->rho += ( 315.0 / 64.0 / M_PI ) * s->mass / h3;
 
         unsigned buckets[MAX_NBR_BINS];
         unsigned num_bins = particle_neighborhood(buckets, pi, h);
 
-        // Local accumulation of rho, private to each thread
-        float rho_local = 0.0f;
-
-        // Loop over all neighbor bins
         for (unsigned b = 0; b < num_bins; ++b) {
             unsigned bin_index = buckets[b];
             particle_t* pj = hash[bin_index];
 
-            // Traverse the linked list of particles in the current bin
             while (pj != NULL) {
-                if (pj != pi) {  // Avoid self-interaction
-                    float r2 = vec3_dist2(pi->x, pj->x);
-                    float z  = h2 - r2;
-
-                    if (z > 0) {
-                        float rho_ij = C * z * z * z;
-                        rho_local += rho_ij;  // Accumulate local density for neighbors
-                    }
+                if (pj != pi && pi < pj) {
+                    #pragma omp critical
+                    update_density(pi, pj, h2, C); // Critical section to avoid race conditions
                 }
-                pj = pj->next;  // Move to the next particle in the bin
+                pj = pj->next;
             }
         }
-
-        // Use atomic to update pi->rho with the accumulated rho_local after all work is done
-        #pragma omp atomic
-        pi->rho += rho_local;
     }
     /* END TASK */
 #else
@@ -196,44 +180,18 @@ void compute_accel(sim_state_t* state, sim_param_t* params)
         unsigned buckets[MAX_NBR_BINS];
         unsigned num_bins = particle_neighborhood(buckets, pi, h);
 
-        float local_accel[3] = {0.0f, 0.0f, 0.0f};
-
         for (unsigned b = 0; b < num_bins; ++b) {
             unsigned bin_index = buckets[b];
             particle_t* pj = hash[bin_index];
 
-            // Loop through all particles in the bin
             while (pj != NULL) {
-                // leverage symmetric property and avoid duplicate work on pairs
-                if (pj != pi) {
-                    float dx[3];
-                    vec3_diff(dx, pi->x, pj->x);
-                    float r2 = vec3_len2(dx);
-                    if (r2 < h2) {
-                        const float rhoi = pi->rho;
-                        const float rhoj = pj->rho;
-                        float q = sqrt(r2/h2);
-                        float u = 1-q;
-                        float w0 = C0 * u/rhoi/rhoj;
-                        float wp = w0 * Cp * (rhoi+rhoj-2*rho0) * u/q;
-                        float wv = w0 * Cv;
-                        float dv[3];
-                        vec3_diff(dv, pi->v, pj->v);
-                        vec3_saxpy(local_accel,  wp, dx);
-                        vec3_saxpy(local_accel,  wv, dv);
-                    }
+                if (pj != pi && pi < pj) {
+                    #pragma omp critical
+                    update_forces(pi, pj, h2, rho0, C0, Cp, Cv); // Critical to avoid race conditions
                 }
-                pj = pj->next; // Move to the next particle in the bin
+                pj = pj->next;
             }
         }
-        #pragma omp atomic
-        pi->a[0] += local_accel[0];
-            
-        #pragma omp atomic 
-        pi->a[1] += local_accel[1];
-        
-        #pragma omp atomic
-        pi->a[2] += local_accel[2];
     }
     /* END TASK */
 #else
