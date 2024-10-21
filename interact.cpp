@@ -55,30 +55,50 @@ void compute_density(sim_state_t* s, sim_param_t* params)
     float C  = ( 315.0/64.0/M_PI ) * s->mass / h9;
 
     // Clear densities
+    #pragma omp for
     for (int i = 0; i < n; ++i)
         p[i].rho = 0;
 
     // Accumulate density info
 #ifdef USE_BUCKETING
     /* BEGIN TASK */
-    #pragma omp parallel for
-    for (int i = 0; i < n; ++i) {
-        particle_t* pi = s->part + i;
-        pi->rho += ( 315.0 / 64.0 / M_PI ) * s->mass / h3;
+    #pragma omp parallel
+    {
+        // Each thread uses a private copy of density buffer to avoid race conditions
+        float local_rho[n] = {0};
 
-        unsigned buckets[MAX_NBR_BINS];
-        unsigned num_bins = particle_neighborhood(buckets, pi, h);
+        #pragma omp for schedule(static)
+        for (int i = 0; i < n; ++i) {
+            particle_t* pi = s->part + i;
+            local_rho[i] += (315.0 / 64.0 / M_PI) * s->mass / h3;
 
-        for (unsigned b = 0; b < num_bins; ++b) {
-            unsigned bin_index = buckets[b];
-            particle_t* pj = hash[bin_index];
+            unsigned buckets[MAX_NBR_BINS];
+            unsigned num_bins = particle_neighborhood(buckets, pi, h);
 
-            while (pj != NULL) {
-                if (pj != pi && pi < pj) {
-                    #pragma omp critical
-                    update_density(pi, pj, h2, C); // Critical section to avoid race conditions
+            for (unsigned b = 0; b < num_bins; ++b) {
+                unsigned bin_index = buckets[b];
+                particle_t* pj = hash[bin_index];
+
+                while (pj != NULL) {
+                    if (pj != pi && pi < pj) {
+                        float r2 = vec3_dist2(pi->x, pj->x);
+                        float z = h2 - r2;
+                        if (z > 0) {
+                            float rho_ij = C * z * z * z;
+                            local_rho[i] += rho_ij;
+                            local_rho[pj - s->part] += rho_ij;
+                        }
+                    }
+                    pj = pj->next;
                 }
-                pj = pj->next;
+            }
+        }
+
+        // Combine results from each thread into the global state
+        #pragma omp critical
+        {
+            for (int i = 0; i < n; ++i) {
+                p[i].rho += local_rho[i];
             }
         }
     }
@@ -162,6 +182,7 @@ void compute_accel(sim_state_t* state, sim_param_t* params)
     compute_density(state, params);
 
     // Start with gravity and surface forces
+    #pragma omp for
     for (int i = 0; i < n; ++i)
         vec3_set(p[i].a,  0, -g, 0);
 
@@ -173,23 +194,49 @@ void compute_accel(sim_state_t* state, sim_param_t* params)
     // Accumulate forces
 #ifdef USE_BUCKETING
     /* BEGIN TASK */
-    #pragma omp parallel for
-    for (int i = 0; i < n; ++i) {
-        particle_t* pi = p + i;
+    #pragma omp parallel
+    {
+        float local_acc[n][3] = {0};  // Local acceleration buffer for each thread
 
-        unsigned buckets[MAX_NBR_BINS];
-        unsigned num_bins = particle_neighborhood(buckets, pi, h);
+        #pragma omp for schedule(dynamic)
+        for (int i = 0; i < n; ++i) {
+            particle_t* pi = p + i;
 
-        for (unsigned b = 0; b < num_bins; ++b) {
-            unsigned bin_index = buckets[b];
-            particle_t* pj = hash[bin_index];
+            unsigned buckets[MAX_NBR_BINS];
+            unsigned num_bins = particle_neighborhood(buckets, pi, h);
 
-            while (pj != NULL) {
-                if (pj != pi && pi < pj) {
-                    #pragma omp critical
-                    update_forces(pi, pj, h2, rho0, C0, Cp, Cv); // Critical to avoid race conditions
+            for (unsigned b = 0; b < num_bins; ++b) {
+                unsigned bin_index = buckets[b];
+                particle_t* pj = hash[bin_index];
+
+                while (pj != NULL) {
+                    if (pj != pi && pi < pj) {
+                        float dx[3], dv[3];
+                        vec3_diff(dx, pi->x, pj->x);
+                        vec3_diff(dv, pi->v, pj->v);
+
+                        float r2 = vec3_len2(dx);
+                        if (r2 < h2) {
+                            float q = sqrt(r2 / h2);
+                            float u = 1 - q;
+                            float w0 = C0 * u / (pi->rho * pj->rho);
+                            float wp = w0 * Cp * (pi->rho + pj->rho - 2 * rho0) * u / q;
+                            float wv = w0 * Cv;
+
+                            vec3_saxpy(local_acc[i], wp, dx);
+                            vec3_saxpy(local_acc[i], wv, dv);
+                        }
+                    }
+                    pj = pj->next;
                 }
-                pj = pj->next;
+            }
+        }
+
+        // Combine the results from the local acceleration buffer into the global particle state
+        #pragma omp critical
+        {
+            for (int i = 0; i < n; ++i) {
+                vec3_saxpy(p[i].a, 1.0, local_acc[i]);
             }
         }
     }
