@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <assert.h>
+#include <omp.h>
 
 #include "vec3.hpp"
 #include "zmorton.hpp"
@@ -60,26 +61,43 @@ void compute_density(sim_state_t* s, sim_param_t* params)
     // Accumulate density info
 #ifdef USE_BUCKETING
     /* BEGIN TASK */
+    omp_set_nested(1);
+    #pragma omp parallel for
     for (int i = 0; i < n; ++i) {
-        particle_t* pi = s->part+i;
-        pi->rho += ( 315.0/64.0/M_PI ) * s->mass / h3;
+        particle_t* pi = s->part + i;
+        
+        // Initialize the base density for the current particle
+        pi->rho += (315.0 / 64.0 / M_PI) * s->mass / h3;
 
         unsigned buckets[MAX_NBR_BINS];
         unsigned num_bins = particle_neighborhood(buckets, pi, h);
 
+        // Local accumulation of rho, private to each thread
+        float rho_local = 0.0f;
+
+        // Loop over all neighbor bins
         for (unsigned b = 0; b < num_bins; ++b) {
             unsigned bin_index = buckets[b];
             particle_t* pj = hash[bin_index];
 
-            // Loop through all particles in the bin
+            // Traverse the linked list of particles in the current bin
             while (pj != NULL) {
-                // avoid duplicate work on pairs
-                if (pj != pi && pi < pj) {
-                    update_density(pi, pj, h2, C);
+                if (pj != pi) {  // Avoid self-interaction
+                    float r2 = vec3_dist2(pi->x, pj->x);
+                    float z  = h2 - r2;
+
+                    if (z > 0) {
+                        float rho_ij = C * z * z * z;
+                        rho_local += rho_ij;  // Accumulate local density for neighbors
+                    }
                 }
-                pj = pj->next; // Move to the next particle in the bin
+                pj = pj->next;  // Move to the next particle in the bin
             }
         }
+
+        // Use atomic to update pi->rho with the accumulated rho_local after all work is done
+        #pragma omp atomic
+        pi->rho += rho_local;
     }
     /* END TASK */
 #else
@@ -203,4 +221,3 @@ void compute_accel(sim_state_t* state, sim_param_t* params)
     }
 #endif
 }
-
