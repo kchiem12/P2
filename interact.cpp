@@ -61,7 +61,6 @@ void compute_density(sim_state_t* s, sim_param_t* params)
     // Accumulate density info
 #ifdef USE_BUCKETING
     /* BEGIN TASK */
-    omp_set_nested(1);
     #pragma omp parallel for
     for (int i = 0; i < n; ++i) {
         particle_t* pi = s->part + i;
@@ -190,11 +189,14 @@ void compute_accel(sim_state_t* state, sim_param_t* params)
     // Accumulate forces
 #ifdef USE_BUCKETING
     /* BEGIN TASK */
+    #pragma omp parallel for
     for (int i = 0; i < n; ++i) {
         particle_t* pi = p + i;
 
         unsigned buckets[MAX_NBR_BINS];
         unsigned num_bins = particle_neighborhood(buckets, pi, h);
+
+        float local_accel[3] = {0.0f, 0.0f, 0.0f};
 
         for (unsigned b = 0; b < num_bins; ++b) {
             unsigned bin_index = buckets[b];
@@ -203,12 +205,35 @@ void compute_accel(sim_state_t* state, sim_param_t* params)
             // Loop through all particles in the bin
             while (pj != NULL) {
                 // leverage symmetric property and avoid duplicate work on pairs
-                if (pj != pi && pi < pj) {
-                    update_forces(pi, pj, h2, rho0, C0, Cp, Cv);
+                if (pj != pi) {
+                    float dx[3];
+                    vec3_diff(dx, pi->x, pj->x);
+                    float r2 = vec3_len2(dx);
+                    if (r2 < h2) {
+                        const float rhoi = pi->rho;
+                        const float rhoj = pj->rho;
+                        float q = sqrt(r2/h2);
+                        float u = 1-q;
+                        float w0 = C0 * u/rhoi/rhoj;
+                        float wp = w0 * Cp * (rhoi+rhoj-2*rho0) * u/q;
+                        float wv = w0 * Cv;
+                        float dv[3];
+                        vec3_diff(dv, pi->v, pj->v);
+                        vec3_saxpy(local_accel,  wp, dx);
+                        vec3_saxpy(local_accel,  wv, dv);
+                    }
                 }
                 pj = pj->next; // Move to the next particle in the bin
             }
         }
+        #pragma omp atomic
+        pi->a[0] += local_accel[0];
+            
+        #pragma omp atomic 
+        pi->a[1] += local_accel[1];
+        
+        #pragma omp atomic
+        pi->a[2] += local_accel[2];
     }
     /* END TASK */
 #else
