@@ -72,7 +72,7 @@ void compute_density(sim_state_t* s, sim_param_t* params)
         unsigned num_bins = particle_neighborhood(buckets, pi, h);
 
         // Local accumulation of rho, private to each thread
-        float rho_local = 0.0f;
+        // float rho_local = 0.0f;
 
         // Loop over all neighbor bins
         for (unsigned b = 0; b < num_bins; ++b) {
@@ -81,22 +81,22 @@ void compute_density(sim_state_t* s, sim_param_t* params)
 
             // Traverse the linked list of particles in the current bin
             while (pj != NULL) {
-                if (pj != pi) {  // Avoid self-interaction
+                if (pj != pi && pi < pj) {  // Avoid self-interaction
                     float r2 = vec3_dist2(pi->x, pj->x);
                     float z  = h2 - r2;
 
                     if (z > 0) {
                         float rho_ij = C * z * z * z;
-                        rho_local += rho_ij;  // Accumulate local density for neighbors
+                        #pragma omp atomic
+                        pi->rho += rho_ij;  // Accumulate local density for neighbors
+                        
+                        #pragma omp atomic
+                        pj->rho += rho_ij;
                     }
                 }
                 pj = pj->next;  // Move to the next particle in the bin
             }
         }
-
-        // Use atomic to update pi->rho with the accumulated rho_local after all work is done
-        #pragma omp atomic
-        pi->rho += rho_local;
     }
     /* END TASK */
 #else
@@ -205,7 +205,7 @@ void compute_accel(sim_state_t* state, sim_param_t* params)
             // Loop through all particles in the bin
             while (pj != NULL) {
                 // leverage symmetric property and avoid duplicate work on pairs
-                if (pj != pi) {
+                if (pj != pi && pi < pj) {
                     float dx[3];
                     vec3_diff(dx, pi->x, pj->x);
                     float r2 = vec3_len2(dx);
@@ -221,6 +221,19 @@ void compute_accel(sim_state_t* state, sim_param_t* params)
                         vec3_diff(dv, pi->v, pj->v);
                         vec3_saxpy(local_accel,  wp, dx);
                         vec3_saxpy(local_accel,  wv, dv);
+
+                        float force_neg[3] = {0.0f, 0.0f, 0.0f};  // Initialize to zeros
+                        vec3_saxpy(force_neg,  -wp, dx);
+                        vec3_saxpy(force_neg,  -wv, dv);
+
+                        #pragma omp atomic
+                        pj->a[0] += force_neg[0];
+                            
+                        #pragma omp atomic 
+                        pj->a[1] += force_neg[1];
+                        
+                        #pragma omp atomic
+                        pj->a[2] += force_neg[2];
                     }
                 }
                 pj = pj->next; // Move to the next particle in the bin
