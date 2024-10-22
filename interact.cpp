@@ -194,9 +194,9 @@ void compute_accel(sim_state_t* state, sim_param_t* params)
     // Accumulate forces
 #ifdef USE_BUCKETING
     /* BEGIN TASK */
-    #pragma omp parallel
+ #pragma omp parallel
     {
-        float local_acc[n][3] = {0};  // Local acceleration buffer for each thread
+        float (*local_acc)[3] = (float (*)[3])calloc(n, sizeof(float[3])); // Allocate and zero-initialize
 
         #pragma omp for schedule(dynamic)
         for (int i = 0; i < n; ++i) {
@@ -223,8 +223,13 @@ void compute_accel(sim_state_t* state, sim_param_t* params)
                             float wp = w0 * Cp * (pi->rho + pj->rho - 2 * rho0) * u / q;
                             float wv = w0 * Cv;
 
+                            // Update local accelerations
                             vec3_saxpy(local_acc[i], wp, dx);
                             vec3_saxpy(local_acc[i], wv, dv);
+
+                            int j = pj - p; // Index of pj
+                            vec3_saxpy(local_acc[j], -wp, dx);
+                            vec3_saxpy(local_acc[j], -wv, dv);
                         }
                     }
                     pj = pj->next;
@@ -232,13 +237,15 @@ void compute_accel(sim_state_t* state, sim_param_t* params)
             }
         }
 
-        // Combine the results from the local acceleration buffer into the global particle state
+        // Combine results into the global particle accelerations
         #pragma omp critical
         {
             for (int i = 0; i < n; ++i) {
                 vec3_saxpy(p[i].a, 1.0, local_acc[i]);
             }
         }
+
+        free(local_acc); // Free allocated memory
     }
     /* END TASK */
 #else
