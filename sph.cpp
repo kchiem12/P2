@@ -145,19 +145,6 @@ void check_state(sim_state_t* s)
 
 int main(int argc, char** argv)
 {   
-    char* timing_filename = NULL;
-
-    // Parse command-line arguments for timing file
-    for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "-timing-file") == 0 && i + 1 < argc) {
-            timing_filename = argv[i + 1];  // Get the next argument as the file name
-        }
-    }
-
-    if (timing_filename == NULL) {
-        fprintf(stderr, "Error: No timing file specified.\n");
-        exit(-1);
-    }
 
     sim_param_t params;
     if (get_params(argc, argv, &params) != 0)
@@ -190,16 +177,6 @@ int main(int argc, char** argv)
     printf("Ran in %g seconds\n", t_end-t_start);
 
     fclose(fp);
-
-     // Append the number of particles and the time taken to the specified timing file
-    FILE* timing_fp = std::fopen(timing_filename, "a");
-    if (timing_fp != NULL) {
-        fprintf(timing_fp, "%d,%g\n", state->n, t_end - t_start);
-        fclose(timing_fp);
-    } else {
-        fprintf(stderr, "Error: Could not open timing output file.\n");
-        exit(-1);
-    }
 
     free_state(state);
 }
